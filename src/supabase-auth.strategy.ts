@@ -1,24 +1,25 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { Strategy } from 'passport-strategy';
-import { Supabase } from './supabase';
+import { SupabaseAuth } from './supabase.auth';
 import { AuthUser } from '@supabase/supabase-js';
 import { SupabaseOptionDto } from './dto/supabase-option.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { MODULE_OPTIONS_TOKEN } from './config.module-definition';
 const UNAUTHORIZED = 'Unauthorized';
 const SUPABASE_AUTH = 'SUPABASE_AUTH';
 
 export { UNAUTHORIZED, SUPABASE_AUTH };
 @Injectable()
-export class SupabaseStrategy extends Strategy {
+export class SupabaseAuthStrategy extends Strategy {
   readonly name = SUPABASE_AUTH;
 
   success: (user: any, info: any) => void;
   fail: Strategy['fail'];
   constructor(
-    private supabase: Supabase,
-    @Inject('SUPABASE_OPTIONS')
-    private options: SupabaseOptionDto,
+    private readonly supabase: SupabaseAuth,
+    @Inject(MODULE_OPTIONS_TOKEN) private options: SupabaseOptionDto,
   ) {
     super();
+
     if (!this.options.extractor) {
       throw new Error(
         '\n Extractor is not a function. You should provide an extractor. \n Read the docs: https://github.com/tfarras/nestjs-firebase-auth#readme',

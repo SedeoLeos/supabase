@@ -3,15 +3,16 @@ import { Request } from 'express';
 import { REQUEST } from '@nestjs/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseOptionDto } from './dto/supabase-option.dto';
+import { MODULE_OPTIONS_TOKEN } from './config.module-definition';
 
 @Injectable({ scope: Scope.REQUEST })
-export class Supabase {
-  private readonly logger = new Logger(Supabase.name);
+export class SupabaseAuth {
+  private readonly logger = new Logger(SupabaseAuth.name);
   private clientInstance: SupabaseClient;
 
   constructor(
     @Inject(REQUEST) private readonly request: Request,
-    @Inject('SUPABASE_OPTION') private readonly option: SupabaseOptionDto,
+    @Inject(MODULE_OPTIONS_TOKEN) private readonly option: SupabaseOptionDto,
   ) {}
 
   getClient() {
@@ -24,8 +25,8 @@ export class Supabase {
     this.logger.log('initialising new supabase client for new Scope.REQUEST');
 
     this.clientInstance = createClient(
-      this.option.supabase_url,
-      this.option.supabase_key,
+      this.option.supabaseKey,
+      this.option.supabaseUrl,
       {
         // autoRefreshToken: true,
         //detectSessionInUrl: false,
