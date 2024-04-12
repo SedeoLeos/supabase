@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { SupabaseAuth } from './supabase.auth';
-import { ConfigurableModuleClass } from './config.module-definition';
+import { ConfigurableModuleClass } from './config.module-configure';
+import { PassportSupabaseJwtStrategy } from './strategies/supabase-jwt.strategy';
+import { PassportSupabaseRefreshStrategy } from './strategies/supabase-refresh.strategy';
 
 @Module({
-  providers: [SupabaseAuth],
-  exports: [SupabaseAuth],
+  providers: [PassportSupabaseJwtStrategy, PassportSupabaseRefreshStrategy],
 })
 export class SupabaseAuthModule extends ConfigurableModuleClass {}
