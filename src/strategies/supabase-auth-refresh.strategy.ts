@@ -1,45 +1,42 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { Strategy } from 'passport-strategy';
-import { Supabase } from './supabase';
-import { AuthUser } from '@supabase/supabase-js';
-import { SupabaseOptionDto } from './dto/supabase-option.dto';
-const UNAUTHORIZED = 'Unauthorized';
-const SUPABASE_AUTH = 'SUPABASE_AUTH';
+import { AuthUser, SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseOptionDto } from '../dto/supabase-option.dto';
+import { JwtFromRequestFunction } from 'passport-jwt';
+import { SUPABASE_AUTH_REFRESH, UNAUTHORIZED } from '../constantes';
 
-export { UNAUTHORIZED, SUPABASE_AUTH };
-@Injectable()
-export class SupabaseStrategy extends Strategy {
-  readonly name = SUPABASE_AUTH;
+export class SupabaseAuthRefreshStrategy extends Strategy {
+  readonly name = SUPABASE_AUTH_REFRESH;
 
   success: (user: any, info: any) => void;
   fail: Strategy['fail'];
-  constructor(
-    private supabase: Supabase,
-    @Inject('SUPABASE_OPTIONS')
-    private options: SupabaseOptionDto,
-  ) {
+  supabase: SupabaseClient;
+  extractor: JwtFromRequestFunction;
+  constructor(options: SupabaseOptionDto) {
     super();
-    if (!this.options.extractor) {
+    if (!options.extractor) {
       throw new Error(
         '\n Extractor is not a function. You should provide an extractor. \n Read the docs: https://github.com/tfarras/nestjs-firebase-auth#readme',
       );
     }
+    this.supabase = new SupabaseClient(
+      options.supabase_url,
+      options.supabase_key,
+    );
   }
 
   async validate(payload: AuthUser): Promise<AuthUser> {
     return payload;
   }
   authenticate(req: Request): void {
-    const idToken = this.options.extractor(req);
+    const refresh_token = this.extractor(req);
 
-    if (!idToken) {
+    if (!refresh_token) {
       this.fail(UNAUTHORIZED, 401);
       return;
     }
 
-    this.supabase
-      .getClient()
-      .auth.getUser(idToken)
+    this.supabase.auth
+      .refreshSession({ refresh_token })
       .then((res) => this.validateSupabaseResponse(res))
       .catch((err) => {
         this.fail(err.message, 401);

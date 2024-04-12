@@ -1,22 +1,9 @@
-import { Module, DynamicModule } from '@nestjs/common';
-import { SupabaseStrategy } from './supabase.strategy';
-import { Supabase } from './supabase';
-import { SupabaseOptionDto } from './dto/supabase-option.dto';
+import { Module } from '@nestjs/common';
+import { ConfigurableModuleClass } from './config.module-configure';
+import { PassportSupabaseJwtStrategy } from './strategies/supabase-jwt.strategy';
+import { PassportSupabaseRefreshStrategy } from './strategies/supabase-refresh.strategy';
 
-@Module({})
-export class SupabaseAuthModule {
-  static register(options: SupabaseOptionDto): DynamicModule {
-    return {
-      module: SupabaseAuthModule,
-      providers: [
-        {
-          provide: 'SUPABASE_OPTIONS',
-          useValue: options,
-        },
-        Supabase,
-        SupabaseStrategy,
-      ],
-      exports: [Supabase],
-    };
-  }
-}
+@Module({
+  providers: [PassportSupabaseJwtStrategy, PassportSupabaseRefreshStrategy],
+})
+export class SupabaseAuthModule extends ConfigurableModuleClass {}
