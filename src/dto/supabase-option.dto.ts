@@ -2,6 +2,6 @@ import { JwtFromRequestFunction } from 'passport-jwt';
 
 export interface SupabaseOptionDto {
   extractor: JwtFromRequestFunction;
-  supabaseUrl: string;
-  supabaseKey: string;
+  supabase_url: string;
+  supabase_key: string;
 }

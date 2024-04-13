@@ -1,5 +1,5 @@
 import { Strategy } from 'passport-strategy';
-import { AuthUser, SupabaseClient } from '@supabase/supabase-js';
+import { AuthUser, createClient, SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseOptionDto } from '../dto/supabase-option.dto';
 import { JwtFromRequestFunction } from 'passport-jwt';
 import { SUPABASE_AUTH_REFRESH, UNAUTHORIZED } from '../constantes';
@@ -22,6 +22,7 @@ export class SupabaseAuthRefreshStrategy extends Strategy {
       options.supabase_url,
       options.supabase_key,
     );
+    this.extractor = options;
   }
 
   async validate(payload: AuthUser): Promise<AuthUser> {
